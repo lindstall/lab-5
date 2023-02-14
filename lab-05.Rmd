@@ -1,49 +1,265 @@
 ---
-title: "Lab 04 - La Quinta is Spanish for next to Denny's, Pt. 2"
-author: "Insert your name here"
-date: "Insert date here"
+title: "Lab 05 - La Quinta is Spanish for next to Denny's, Pt. 2"
+author: "Lindsay Stall"
+date: "2/7/2023"
 output: github_document
 ---
 
 ### Load packages and data
+
 
 ```{r load-packages, message = FALSE}
 library(tidyverse) 
 library(dsbox) 
 ```
 
+```{r}
+# install.packages("devtools")
+devtools::install_github("rstudio-education/dsbox")
+```
+
+
 ```{r load-data, message = FALSE}
 states <- read_csv("data/states.csv")
 ```
 
+```{r}
+view(dennys)
+```
+
+```{r}
+view(laquinta)
+```
+
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+dn_ak <- dennys %>%
+  filter(state == "AK")
+nrow(dn_ak)
+```
+
+There are 3 Denny's locations in Alaska
 
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+lq_ak <- laquinta %>%
+  filter(state == "AK")
+nrow(lq_ak)
+```
+
+There are 2 La Quinta locations in Alaska
+
 
 ### Exercise 3
 
-...
+```{r}
+dn_lq_ak <- full_join(dn_ak, lq_ak, by = "state")
+dn_lq_ak
+```
 
-### Exercise 4
+### Exercise 4 
+There are 6 observations and the variables are address, city, zip, longitude, and latitude (of both x and y seperately) and state.
 
-...
 
 ### Exercise 5
 
-...
+```{r}
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
 
 ### Exercise 6
 
-...
+```{r}
+dn_lq_ak <- dn_lq_ak %>%
+  mutate(dn_lq_ak, distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y, round = 3))
+dn_lq_ak
+```
 
-Add exercise headings as needed.
+
+### Exercise 7
+
+```{r}
+dn_lq_ak_mindist <- dn_lq_ak %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+dn_lq_ak_mindist
+```
+
+
+### Exercise 8
+
+```{r}
+dn_lq_ak%>%
+  ggplot(mapping = aes(x=address.x, y=distance)) + geom_point()
+```
+
+```{r}
+dn_lq_ak_mindist %>%
+  ggplot(mapping = aes(x=address.x, y=closest)) + geom_point()
+```
+
+
+### Exercise 9
+
+```{r}
+dn_nc <- dennys %>%
+  filter(state == "NC")
+nrow(dn_nc)
+```
+
+```{r}
+lq_nc <- laquinta %>%
+  filter(state == "NC")
+nrow(lq_nc)
+```
+
+```{r}
+dn_lq_nc <- full_join(dn_nc, lq_nc, by = "state")
+dn_lq_nc
+```
+
+```{r}
+dn_lq_nc <- dn_lq_nc %>%
+  mutate(dn_lq_nc, distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y, round = 3))
+dn_lq_nc
+```
+
+336 observations, the variables are Address, city, zip, longitude, and latitude of both x and y and state
+
+```{r}
+dn_lq_nc_mindist <- dn_lq_nc %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+dn_lq_nc_mindist
+```
+```{r}
+dn_lq_nc <- dn_lq_nc %>%
+  mutate(dn_lq_nc, distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y, round = 3))
+dn_lq_nc
+```
+
+```{r}
+dn_lq_nc_mindist <- dn_lq_nc %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+dn_lq_nc_mindist
+```
+
+```{r}
+dn_lq_nc%>%
+  ggplot(mapping = aes(x=address.x, y=distance)) + geom_point()
+```
+
+
+```{r}
+dn_lq_nc_mindist%>%
+  ggplot(mapping = aes(x=address.x, y=closest)) + geom_point()
+```
+
+
+
+### Exercise 10
+```{r}
+dn_tx <- dennys %>%
+  filter(state == "TX")
+nrow(dn_tx)
+```
+
+```{r}
+lq_tx <- laquinta %>%
+  filter(state == "TX")
+nrow(lq_tx)
+```
+
+```{r}
+dn_lq_tx <- full_join(dn_tx, lq_tx, by = "state")
+dn_lq_tx
+```
+
+47,400 observations, the variables are Address, city, zip, longitude, and latitude of both x and y (separately) and state
+
+```{r}
+dn_lq_tx <- dn_lq_tx %>%
+  mutate(dn_lq_tx, distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y, round = 3))
+dn_lq_tx
+```
+
+```{r}
+dn_lq_tx_mindist <- dn_lq_tx %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+dn_lq_tx_mindist
+```
+
+
+```{r}
+dn_lq_tx_mindist%>%
+  ggplot(mapping = aes(x=address.x, y=closest)) + geom_point()
+```
+As you can see here, it does appear as if there is a La Quinta very close to almost every Dennys, only a handful were farther away.
+
+
+### Exercise 11
+
+
+```{r}
+dn_ca <- dennys %>%
+  filter(state == "CA")
+nrow(dn_ca)
+```
+
+```{r}
+lq_ca <- laquinta %>%
+  filter(state == "CA")
+nrow(lq_ca)
+```
+
+```{r}
+dn_lq_ca <- full_join(dn_ca, lq_ca, by = "state")
+dn_lq_ca
+```
+
+
+
+```{r}
+dn_lq_ca <- dn_lq_ca %>%
+  mutate(dn_lq_ca, distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y, round = 3))
+dn_lq_ca
+```
+
+```{r}
+dn_lq_ca_mindist <- dn_lq_ca %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+dn_lq_ca_mindist
+```
+
+
+
+```{r}
+dn_lq_ca_mindist%>%
+  ggplot(mapping = aes(x=address.x, y=closest)) + geom_point()
+```
+
+
+
+### Exercise 12
+
+The joke appears most applicable in California
+
